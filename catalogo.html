@@ -30,7 +30,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--ze-black); color: var(--text-primary); min-height: 100vh; }
         .bg-layer { position: fixed; inset: 0; background: url('ze-bebidas-bg.jpg') center center / cover no-repeat; z-index: 0; }
-        .bg-overlay { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.92) 100%); z-index: 1; }
+        .bg-overlay { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.48) 44%, rgba(0,0,0,0.72) 100%); z-index: 1; }
         .header { position: relative; z-index: 100; background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%); backdrop-filter: blur(10px); border-bottom: 2px solid var(--ze-yellow); padding: 1rem 2rem; position: sticky; top: 0; }
         .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--ze-yellow); letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
@@ -43,7 +43,8 @@
         .cart-btn:hover { border-color: var(--ze-yellow); background: rgba(255,215,0,0.1); }
         .cart-btn .count { position: absolute; top: -8px; right: -8px; background: var(--ze-yellow); color: var(--ze-black); width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
         .main-content { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .hero-banner { text-align: center; padding: 3rem 1rem 2rem; margin-bottom: 2rem; }
+        .hero-banner { text-align: center; padding: 2rem 1rem 2rem; margin-bottom: 2rem; }
+        .hero-image { display: block; width: min(100%, 560px); height: 280px; object-fit: cover; object-position: center; margin: 0 auto 1.5rem; border-radius: 14px; border: 2px solid var(--ze-yellow); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 35px rgba(255,215,0,0.18); }
         .hero-banner h1 { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; font-weight: 400; color: var(--ze-yellow); letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7); margin-bottom: 0.5rem; }
         .hero-banner .subtitle { font-size: 1.3rem; color: var(--text-primary); font-weight: 300; text-shadow: 1px 1px 3px rgba(0,0,0,0.7); }
         .free-delivery-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ze-yellow); color: var(--ze-black); padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 1rem; margin-top: 1rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
@@ -234,6 +235,7 @@
     <main class="main-content">
         <div id="view-catalog" class="view">
             <div class="hero-banner">
+                <img src="ze-bebidas-bg.jpg" alt="Zé Bebidas" class="hero-image">
                 <h1>Zé Bebidas</h1>
                 <p class="subtitle">O melhor delivery de bebidas da região</p>
                 <div class="free-delivery-badge">

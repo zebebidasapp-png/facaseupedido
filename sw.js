@@ -1,8 +1,8 @@
-const CACHE_NAME = 'ze-bebidas-v1';
+const CACHE_NAME = 'ze-bebidas-v2';
 const urlsToCache = [
-  '/catalogo.html',
-  '/ze-bebidas-bg.jpg',
-  '/manifest.json',
+  'catalogo.html',
+  'ze-bebidas-bg.jpg',
+  'manifest.json',
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap'
 ];
 
@@ -33,7 +33,7 @@ self.addEventListener('fetch', event => {
         if (response) return response;
         return fetch(event.request).catch(() => {
           if (event.request.mode === 'navigate') {
-            return caches.match('/catalogo.html');
+            return caches.match('catalogo.html');
           }
         });
       })
