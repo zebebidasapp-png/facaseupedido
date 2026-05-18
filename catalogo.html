@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFD700">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Zé Bebidas">
+    <title>Zé Bebidas - Catálogo Online</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ze-yellow: #FFD700;
+            --ze-yellow-dark: #E6C200;
+            --ze-black: #0a0a0a;
+            --ze-dark: #111111;
+            --ze-card: rgba(20, 20, 20, 0.92);
+            --ze-input: rgba(30, 30, 30, 0.95);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: rgba(255, 215, 0, 0.25);
+            --success: #4caf50;
+            --danger: #e53935;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--ze-black); color: var(--text-primary); min-height: 100vh; }
+        .bg-layer { position: fixed; inset: 0; background: url('ze-bebidas-bg.jpg') center center / cover no-repeat; z-index: 0; }
+        .bg-overlay { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.92) 100%); z-index: 1; }
+        .header { position: relative; z-index: 100; background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%); backdrop-filter: blur(10px); border-bottom: 2px solid var(--ze-yellow); padding: 1rem 2rem; position: sticky; top: 0; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--ze-yellow); letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .logo span { color: var(--text-primary); }
+        .nav-tabs { display: flex; gap: 0.5rem; align-items: center; }
+        .nav-tab { padding: 0.6rem 1.4rem; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-tab:hover { border-color: var(--ze-yellow); color: var(--ze-yellow); }
+        .nav-tab.active { background: var(--ze-yellow); color: var(--ze-black); border-color: var(--ze-yellow); }
+        .cart-btn { position: relative; padding: 0.6rem 1rem; border: 1px solid var(--border); background: transparent; color: var(--ze-yellow); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease; }
+        .cart-btn:hover { border-color: var(--ze-yellow); background: rgba(255,215,0,0.1); }
+        .cart-btn .count { position: absolute; top: -8px; right: -8px; background: var(--ze-yellow); color: var(--ze-black); width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .main-content { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .hero-banner { text-align: center; padding: 3rem 1rem 2rem; margin-bottom: 2rem; }
+        .hero-banner h1 { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; font-weight: 400; color: var(--ze-yellow); letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7); margin-bottom: 0.5rem; }
+        .hero-banner .subtitle { font-size: 1.3rem; color: var(--text-primary); font-weight: 300; text-shadow: 1px 1px 3px rgba(0,0,0,0.7); }
+        .free-delivery-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ze-yellow); color: var(--ze-black); padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 1rem; margin-top: 1rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .product-card { background: var(--ze-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: blur(10px); }
+        .product-card:hover { transform: translateY(-8px); border-color: var(--ze-yellow); box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15); }
+        .product-image { width: 100%; height: 260px; object-fit: cover; display: block; background: var(--ze-dark); }
+        .product-image-placeholder { width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); color: var(--text-secondary); font-size: 0.9rem; }
+        .product-info { padding: 1.2rem; }
+        .product-code { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.3rem; font-weight: 500; letter-spacing: 0.5px; }
+        .product-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; font-weight: 400; margin-bottom: 0.4rem; color: var(--text-primary); letter-spacing: 1px; }
+        .product-description { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .product-price { font-size: 1.4rem; font-weight: 700; color: var(--ze-yellow); }
+        .btn-buy { padding: 0.6rem 1.3rem; background: var(--ze-yellow); color: var(--ze-black); border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-buy:hover { background: var(--ze-yellow-dark); transform: scale(1.05); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
+        .btn-add-cart { padding: 0.5rem 1rem; background: transparent; color: var(--ze-yellow); border: 1px solid var(--ze-yellow); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-add-cart:hover { background: var(--ze-yellow); color: var(--ze-black); }
+        .admin-header { margin-bottom: 2rem; position: relative; z-index: 2; }
+        .admin-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--ze-yellow); letter-spacing: 2px; }
+        .admin-header p { color: var(--text-secondary); }
+        .admin-grid { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; }
+        @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
+        .form-panel { background: var(--ze-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; height: fit-content; position: sticky; top: 100px; backdrop-filter: blur(10px); }
+        .form-panel h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--ze-yellow); letter-spacing: 1px; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem 1rem; background: var(--ze-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 0.95rem; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--ze-yellow); box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1); }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FFD700' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+        .image-upload { border: 2px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .image-upload:hover { border-color: var(--ze-yellow); }
+        .image-upload.has-image { padding: 0; border-style: solid; border-color: var(--ze-yellow); }
+        .image-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .upload-preview { max-width: 100%; max-height: 200px; border-radius: 8px; display: none; }
+        .upload-preview.show { display: block; }
+        .upload-text { color: var(--text-secondary); font-size: 0.9rem; }
+        .form-actions { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+        .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; flex: 1; }
+        .btn-primary { background: var(--ze-yellow); color: var(--ze-black); }
+        .btn-primary:hover { background: var(--ze-yellow-dark); }
+        .btn-secondary { background: var(--ze-input); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--ze-yellow); }
+        .btn-danger { background: rgba(229, 57, 53, 0.1); color: var(--danger); border: 1px solid rgba(229, 57, 53, 0.3); }
+        .products-list { display: flex; flex-direction: column; gap: 1rem; }
+        .product-list-item { background: var(--ze-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; display: flex; gap: 1rem; align-items: center; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .product-list-item:hover { border-color: var(--ze-yellow); }
+        .product-list-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; background: var(--ze-dark); flex-shrink: 0; }
+        .product-list-info { flex: 1; min-width: 0; }
+        .product-list-code { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.1rem; }
+        .product-list-name { font-weight: 600; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-list-desc { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-list-price { font-weight: 700; color: var(--ze-yellow); font-size: 1.1rem; margin-right: 1rem; white-space: nowrap; }
+        .product-list-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .btn-icon { width: 36px; height: 36px; border: 1px solid var(--border); background: var(--ze-input); color: var(--text-primary); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .btn-icon:hover { border-color: var(--ze-yellow); color: var(--ze-yellow); }
+        .btn-icon.delete:hover { border-color: var(--danger); color: var(--danger); }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
+        .empty-state svg { width: 80px; height: 80px; stroke: var(--border); margin-bottom: 1rem; }
+        .empty-state h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: 1px; }
+        .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast { padding: 1rem 1.5rem; border-radius: 12px; background: var(--ze-card); border: 1px solid var(--border); color: var(--text-primary); font-size: 0.9rem; display: flex; align-items: center; gap: 0.8rem; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--ze-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s ease; backdrop-filter: blur(20px); }
+        @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; margin-bottom: 1rem; color: var(--ze-yellow); letter-spacing: 1px; }
+        .modal-actions { display: flex; gap: 0.8rem; }
+        .btn-whatsapp { background: #25d366; color: white; flex: 1; }
+        .btn-whatsapp:hover { background: #1da851; }
+        .payment-options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .payment-option { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1rem; background: var(--ze-input); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .payment-option:hover { border-color: var(--ze-yellow); }
+        .payment-option input[type="radio"] { width: 18px; height: 18px; accent-color: var(--ze-yellow); cursor: pointer; }
+        .payment-option label { cursor: pointer; flex: 1; color: var(--text-primary); font-size: 0.95rem; }
+        .payment-option.selected { border-color: var(--ze-yellow); background: rgba(255, 215, 0, 0.1); }
+        .hidden-field { display: none; }
+        .hidden-field.show { display: block; }
+        .quantity-control { display: flex; align-items: center; gap: 0.5rem; background: var(--ze-input); border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem; width: fit-content; }
+        .quantity-control button { width: 32px; height: 32px; border: none; background: var(--ze-dark); color: var(--ze-yellow); border-radius: 6px; font-size: 1.2rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .quantity-control button:hover { background: var(--ze-yellow); color: var(--ze-black); }
+        .quantity-control input { width: 50px; text-align: center; background: transparent; border: none; color: var(--text-primary); font-size: 1rem; font-weight: 600; -moz-appearance: textfield; }
+        .quantity-control input::-webkit-outer-spin-button, .quantity-control input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .site-footer { position: relative; z-index: 2; text-align: center; padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.85rem; }
+        .site-footer .whatsapp-info { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--ze-yellow); font-weight: 600; margin-top: 0.5rem; }
+        .password-modal .modal { max-width: 380px; text-align: center; }
+        .password-modal .modal p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .password-input { font-size: 1.5rem !important; letter-spacing: 8px; text-align: center; }
+        /* Cart Modal */
+        .cart-item { display: flex; gap: 1rem; align-items: center; padding: 1rem; background: var(--ze-input); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.8rem; }
+        .cart-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .cart-item .info { flex: 1; }
+        .cart-item .info .code { font-size: 0.75rem; color: var(--text-secondary); }
+        .cart-item .info .name { font-weight: 600; font-size: 0.95rem; }
+        .cart-item .info .price { color: var(--ze-yellow); font-weight: 600; font-size: 0.9rem; }
+        .cart-item .qty-control { display: flex; align-items: center; gap: 0.4rem; }
+        .cart-item .qty-control button { width: 28px; height: 28px; border: 1px solid var(--border); background: var(--ze-dark); color: var(--ze-yellow); border-radius: 6px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+        .cart-item .qty-control span { width: 30px; text-align: center; font-weight: 600; }
+        .cart-item .remove-btn { width: 32px; height: 32px; border: 1px solid rgba(229,57,53,0.3); background: rgba(229,57,53,0.1); color: var(--danger); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cart-total { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--ze-input); border: 1px solid var(--ze-yellow); border-radius: 12px; margin: 1rem 0; }
+        .cart-total span { color: var(--text-secondary); font-size: 0.9rem; }
+        .cart-total .total-price { color: var(--ze-yellow); font-size: 1.5rem; font-weight: 700; }
+        @media (max-width: 768px) {
+            .hero-banner h1 { font-size: 2.5rem; }
+            .products-grid { grid-template-columns: 1fr; }
+            .header-content { flex-direction: column; text-align: center; }
+            .product-list-item { flex-wrap: wrap; }
+            .product-list-price { width: 100%; margin: 0.5rem 0; }
+            .modal { padding: 1.5rem; max-width: 100%; }
+        }
+        .fade-in { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .product-card { animation: fadeIn 0.5s ease backwards; }
+        .product-card:nth-child(1) { animation-delay: 0.05s; }
+        .product-card:nth-child(2) { animation-delay: 0.1s; }
+        .product-card:nth-child(3) { animation-delay: 0.15s; }
+        .product-card:nth-child(4) { animation-delay: 0.2s; }
+        .product-card:nth-child(5) { animation-delay: 0.25s; }
+        .product-card:nth-child(6) { animation-delay: 0.3s; }
+        .order-history-item { background: var(--ze-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .order-history-item:hover { border-color: var(--ze-yellow); }
+        .order-history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem; }
+        .order-history-id { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--ze-yellow); letter-spacing: 1px; }
+        .order-history-date { font-size: 0.8rem; color: var(--text-secondary); }
+        .order-history-status { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .status-pendente { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+        .status-entregue { background: rgba(76, 175, 80, 0.15); color: var(--success); border: 1px solid rgba(76, 175, 80, 0.3); }
+        .status-cancelado { background: rgba(229, 57, 53, 0.15); color: var(--danger); border: 1px solid rgba(229, 57, 53, 0.3); }
+        .order-history-products { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.6; }
+        .order-history-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+        .order-history-total { color: var(--ze-yellow); font-weight: 700; font-size: 1.1rem; }
+        .order-history-customer { font-size: 0.8rem; color: var(--text-secondary); }
+        .order-history-actions { display: flex; gap: 0.5rem; }
+        .btn-small { padding: 0.4rem 0.8rem; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .admin-tab { padding: 0.5rem 1.2rem; background: transparent; color: var(--text-secondary); border: none; border-radius: 8px 8px 0 0; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border-bottom: 2px solid transparent; }
+        .admin-tab:hover { color: var(--ze-yellow); }
+        .admin-tab.active { color: var(--ze-yellow); border-bottom-color: var(--ze-yellow); }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+        .customer-card { background: var(--ze-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .customer-card:hover { border-color: var(--ze-yellow); }
+        .customer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        .customer-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--ze-yellow); letter-spacing: 1px; }
+        .customer-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0; }
+        .customer-stat { background: var(--ze-input); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem; text-align: center; }
+        .customer-stat-value { font-size: 1.2rem; font-weight: 700; color: var(--ze-yellow); }
+        .customer-stat-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; text-transform: uppercase; }
+        .customer-address { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .customer-last-order { font-size: 0.8rem; color: var(--text-secondary); }
+        .customer-orders-list { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+        .customer-order-mini { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; font-size: 0.85rem; border-bottom: 1px solid rgba(255,215,0,0.1); }
+        .customer-order-mini:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="bg-overlay"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Zé <span>Bebidas</span></div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="showView('catalog')">Vitrine</button>
+                <button class="nav-tab" onclick="promptAdminAccess()">Gerenciar</button>
+                <button class="cart-btn" onclick="openCart()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                    Carrinho
+                    <span class="count" id="cart-count" style="display:none">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div id="view-catalog" class="view">
+            <div class="hero-banner">
+                <h1>Zé Bebidas</h1>
+                <p class="subtitle">O melhor delivery de bebidas da região</p>
+                <div class="free-delivery-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/><path d="M13 5V3"/><path d="M13 11V9"/></svg>
+                    Entrega Grátis Hoje
+                </div>
+            </div>
+            <div id="catalog-grid" class="products-grid"></div>
+            <div id="catalog-empty" class="empty-state" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <h3>Nenhum produto cadastrado</h3>
+                <p>Acesse a área administrativa para adicionar suas bebidas.</p>
+            </div>
+        </div>
+
+        <div id="view-admin" class="view" style="display:none">
+            <div class="admin-header">
+                <h2>Painel Administrativo</h2>
+                <p>Gerencie produtos e acompanhe pedidos</p>
+            </div>
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="showAdminTab('products')">Produtos</button>
+                <button class="admin-tab" onclick="showAdminTab('orders')">Pedidos</button>
+                <button class="admin-tab" onclick="showAdminTab('customers')">Clientes</button>
+            </div>
+            <div id="admin-section-products" class="admin-section active">
+                <div class="admin-grid">
+                    <div class="form-panel">
+                        <h3 id="form-title">Nova Bebida</h3>
+                        <form id="product-form" onsubmit="saveProduct(event)">
+                            <input type="hidden" id="product-id">
+                            <div class="form-group">
+                                <label>Foto do Produto</label>
+                                <div class="image-upload" id="image-upload" onclick="document.getElementById('product-image').click()">
+                                    <input type="file" id="product-image" accept="image/*" onchange="previewImage(event)">
+                                    <img id="image-preview" class="upload-preview" alt="Preview">
+                                    <div class="upload-text" id="upload-text">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 0.5rem;display:block"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                        Clique para adicionar uma foto
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Código do Produto</label>
+                                <input type="text" id="product-code" placeholder="Ex: BEB001" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nome da Bebida</label>
+                                <input type="text" id="product-name" placeholder="Ex: Skol 269ml" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Descrição</label>
+                                <textarea id="product-description" placeholder="Descreva o produto..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Preço (R$)</label>
+                                <input type="text" id="product-price" placeholder="5,99" required oninput="formatPrice(this)">
+                            </div>
+                            <div class="form-group">
+                                <label>Promoção por Quantidade</label>
+                                <select id="discount-type" onchange="toggleDiscountFields()">
+                                    <option value="none">Sem promoção</option>
+                                    <option value="leve-pague">Leve X Pague Y</option>
+                                    <option value="percent">Desconto %</option>
+                                </select>
+                            </div>
+                            <div id="discount-leve-pague" class="hidden-field">
+                                <div class="form-group">
+                                    <label>Leve quantos?</label>
+                                    <input type="number" id="discount-qty-buy" placeholder="6" min="2" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Pague quantos?</label>
+                                    <input type="number" id="discount-qty-pay" placeholder="5" min="1" max="100">
+                                </div>
+                            </div>
+                            <div id="discount-percent" class="hidden-field">
+                                <div class="form-group">
+                                    <label>A partir de quantas unidades?</label>
+                                    <input type="number" id="discount-min-qty" placeholder="6" min="2" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Desconto %</label>
+                                    <input type="number" id="discount-percent-value" placeholder="10" min="1" max="99">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="btn-save">Salvar</button>
+                                <button type="button" class="btn btn-secondary" id="btn-cancel" onclick="resetForm()" style="display:none">Cancelar</button>
+                            </div>
+                            <button type="button" class="btn btn-danger" id="btn-delete" onclick="deleteCurrentProduct()" style="display:none;margin-top:0.8rem;width:100%">Excluir</button>
+                        </form>
+                    </div>
+                    <div>
+                        <div id="admin-list" class="products-list"></div>
+                        <div id="admin-empty" class="empty-state" style="display:none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <h3>Nenhum produto ainda</h3>
+                            <p>Use o formulário ao lado para adicionar sua primeira bebida.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="admin-section-orders" class="admin-section">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+                    <button class="btn btn-primary" onclick="exportOrdersToExcel()" style="width:auto;padding:0.6rem 1.2rem;font-size:0.85rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.3rem;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Exportar Excel
+                    </button>
+                </div>
+                <div id="orders-list"></div>
+                <div id="orders-empty" class="empty-state" style="display:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    <h3>Nenhum pedido ainda</h3>
+                    <p>Os pedidos enviados pelo WhatsApp aparecerão aqui.</p>
+                </div>
+            </div>
+            <div id="admin-section-customers" class="admin-section">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+                    <button class="btn btn-primary" onclick="exportCustomersToExcel()" style="width:auto;padding:0.6rem 1.2rem;font-size:0.85rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.3rem;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Exportar Excel
+                    </button>
+                </div>
+                <div id="customers-list"></div>
+                <div id="customers-empty" class="empty-state" style="display:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>
+                    <h3>Nenhum cliente ainda</h3>
+                    <p>Os clientes que fizerem pedidos aparecerão aqui automaticamente.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div>Zé Bebidas - Delivery de Bebidas</div>
+        <div class="whatsapp-info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            (84) 99472-6406
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay password-modal" id="password-modal">
+        <div class="modal">
+            <h3>Área Administrativa</h3>
+            <p>Digite a senha de administrador para continuar</p>
+            <form onsubmit="checkPassword(event)">
+                <div class="form-group">
+                    <input type="password" id="admin-password" class="password-input" placeholder="••••" maxlength="10" autocomplete="off" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cart-modal">
+        <div class="modal">
+            <h3>Meu Carrinho</h3>
+            <div id="cart-items"></div>
+            <div id="cart-empty" class="empty-state" style="display:none; padding: 2rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:60px;height:60px;"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                <h3 style="font-size:1.2rem;">Carrinho vazio</h3>
+                <p>Adicione produtos ao carrinho para fazer um pedido.</p>
+            </div>
+            <div id="cart-summary" style="display:none;">
+                <div class="cart-total">
+                    <span>Total do Pedido:</span>
+                    <span class="total-price" id="cart-total-price">R$ 0,00</span>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-whatsapp" onclick="openCheckoutFromCart()">Finalizar Pedido</button>
+                    <button class="btn btn-secondary" onclick="closeCartModal()">Continuar Comprando</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal">
+            <h3>Finalizar Pedido</h3>
+            <div id="checkout-summary" style="margin-bottom:1.5rem;"></div>
+
+            <form id="checkout-form" onsubmit="sendOrder(event)">
+                <div class="form-group">
+                    <label>Nome Completo <span style="color:var(--ze-yellow)">*</span></label>
+                    <input type="text" id="customer-name" placeholder="Digite seu nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone / WhatsApp <span style="color:var(--ze-yellow)">*</span></label>
+                    <input type="tel" id="customer-phone" placeholder="(84) 99999-9999" required maxlength="15" oninput="formatPhone(this)">
+                </div>
+                <div class="form-group">
+                    <label>Rua / Avenida <span style="color:var(--ze-yellow)">*</span></label>
+                    <input type="text" id="customer-street" placeholder="Ex: Rua das Flores" required>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Número <span style="color:var(--ze-yellow)">*</span></label>
+                        <input type="text" id="customer-number" placeholder="Ex: 123" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bairro <span style="color:var(--ze-yellow)">*</span></label>
+                        <input type="text" id="customer-neighborhood" placeholder="Ex: Centro" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Ponto de Referência</label>
+                    <input type="text" id="customer-reference" placeholder="Ex: Próximo à farmácia, casa azul...">
+                </div>
+                <div class="form-group">
+                    <label>Forma de Pagamento <span style="color:var(--ze-yellow)">*</span></label>
+                    <div class="payment-options">
+                        <div class="payment-option" onclick="selectPayment('pix')">
+                            <input type="radio" name="payment" id="pay-pix" value="pix" required>
+                            <label for="pay-pix">PIX</label>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('credito')">
+                            <input type="radio" name="payment" id="pay-credito" value="credito">
+                            <label for="pay-credito">Cartão de Crédito</label>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('debito')">
+                            <input type="radio" name="payment" id="pay-debito" value="debito">
+                            <label for="pay-debito">Cartão de Débito</label>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('dinheiro')">
+                            <input type="radio" name="payment" id="pay-dinheiro" value="dinheiro">
+                            <label for="pay-dinheiro">Dinheiro</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group hidden-field" id="troco-group">
+                    <label>Troco para quanto?</label>
+                    <input type="text" id="customer-troco" placeholder="Ex: 100,00" oninput="formatPrice(this)">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-whatsapp">Enviar Pedido pelo WhatsApp</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCheckoutAndContinue()">Continuar Comprando</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = '0923';
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem('ze_bebidas_cart') || '[]');
+        let currentImageBase64 = '';
+        let editingId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCatalog();
+            updateCartCount();
+        });
+
+        function showView(view) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('view-' + view).style.display = 'block';
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            if (view === 'catalog') renderCatalog();
+            else { renderAdminList(); renderOrdersList(); }
+        }
+
+        function showAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('admin-section-' + tab).classList.add('active');
+            if (tab === 'orders') renderOrdersList();
+            if (tab === 'customers') renderCustomersList();
+        }
+
+        // Admin Access
+        function promptAdminAccess() {
+            document.getElementById('password-modal').classList.add('show');
+            document.getElementById('admin-password').value = '';
+            setTimeout(() => document.getElementById('admin-password').focus(), 100);
+        }
+        function closePasswordModal() { document.getElementById('password-modal').classList.remove('show'); }
+        function checkPassword(event) {
+            event.preventDefault();
+            if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
+                closePasswordModal();
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.nav-tab')[1].classList.add('active');
+                document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+                document.getElementById('view-admin').style.display = 'block';
+                renderAdminList();
+                renderOrdersList();
+                renderCustomersList();
+            } else {
+                showToast('Senha incorreta!', 'error');
+                document.getElementById('admin-password').value = '';
+            }
+        }
+        document.getElementById('password-modal').addEventListener('click', function(e) { if (e.target === this) closePasswordModal(); });
+
+        // Cart Functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: productId, qty: 1 });
+            }
+            saveCart();
+            updateCartCount();
+            showToast(`${product.name} adicionado ao carrinho!`, 'success');
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveCart();
+            renderCart();
+            updateCartCount();
+        }
+
+        function changeCartQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty < 1) item.qty = 1;
+            if (item.qty > 99) item.qty = 99;
+            saveCart();
+            renderCart();
+            updateCartCount();
+        }
+
+        function saveCart() {
+            localStorage.setItem('ze_bebidas_cart', JSON.stringify(cart));
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            const badge = document.getElementById('cart-count');
+            if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+            else { badge.style.display = 'none'; }
+        }
+
+        function openCart() {
+            renderCart();
+            document.getElementById('cart-modal').classList.add('show');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cart-modal').classList.remove('show');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const empty = document.getElementById('cart-empty');
+            const summary = document.getElementById('cart-summary');
+
+            if (cart.length === 0) {
+                container.style.display = 'none';
+                empty.style.display = 'block';
+                summary.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            empty.style.display = 'none';
+            summary.style.display = 'block';
+
+            let total = 0;
+            let originalTotal = 0;
+            container.innerHTML = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                if (!product) return '';
+                const itemTotal = calculateItemTotal(product, item.qty);
+                const originalSubtotal = product.price * item.qty;
+                total += itemTotal;
+                originalTotal += originalSubtotal;
+                const discountLabel = formatDiscountLabel(product);
+                const hasDiscount = itemTotal < originalSubtotal;
+                return `
+                    <div class="cart-item">
+                        ${product.image ? `<img src="${product.image}" alt="${escapeHtml(product.name)}">` : '<div style="width:60px;height:60px;background:var(--ze-dark);border-radius:8px;"></div>'}
+                        <div class="info">
+                            <div class="code">COD: ${escapeHtml(product.code || '---')}</div>
+                            <div class="name">${escapeHtml(product.name)}</div>
+                            <div class="price">
+                                ${hasDiscount ? `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:0.8rem;">${formatCurrency(originalSubtotal)}</span> ` : ''}
+                                <span style="color:var(--ze-yellow);font-weight:600;">${formatCurrency(itemTotal)}</span>
+                            </div>
+                            ${discountLabel ? `<div style="color:var(--ze-yellow);font-size:0.75rem;background:rgba(255,215,0,0.1);padding:0.15rem 0.4rem;border-radius:4px;display:inline-block;margin-top:0.2rem;">${discountLabel}</div>` : ''}
+                        </div>
+                        <div class="qty-control">
+                            <button onclick="changeCartQty('${item.id}', -1)">−</button>
+                            <span>${item.qty}</span>
+                            <button onclick="changeCartQty('${item.id}', 1)">+</button>
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart('${item.id}')" title="Remover">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            const totalEl = document.getElementById('cart-total-price');
+            if (total < originalTotal) {
+                totalEl.innerHTML = `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:1rem;margin-right:0.5rem;">${formatCurrency(originalTotal)}</span>${formatCurrency(total)}`;
+            } else {
+                totalEl.textContent = formatCurrency(total);
+            }
+        }
+
+        function openCheckoutFromCart() {
+            closeCartModal();
+            const summary = document.getElementById('checkout-summary');
+            let total = 0;
+            let originalTotal = 0;
+            let html = '<div style="background:var(--ze-input);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1rem;">';
+            html += '<div style="font-weight:600;margin-bottom:0.5rem;color:var(--ze-yellow);">Resumo do Pedido</div>';
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (!product) return;
+                const itemTotal = calculateItemTotal(product, item.qty);
+                const originalSubtotal = product.price * item.qty;
+                total += itemTotal;
+                originalTotal += originalSubtotal;
+                const discountLabel = formatDiscountLabel(product);
+                const hasDiscount = itemTotal < originalSubtotal;
+                html += `<div style="display:flex;justify-content:space-between;padding:0.3rem 0;font-size:0.9rem;border-bottom:1px solid var(--border);">
+                    <span>${escapeHtml(product.name)} x${item.qty} ${discountLabel ? `<span style="color:var(--ze-yellow);font-size:0.75rem;">(${discountLabel})</span>` : ''}</span>
+                    <span>
+                        ${hasDiscount ? `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:0.8rem;margin-right:0.3rem;">${formatCurrency(originalSubtotal)}</span>` : ''}
+                        <span style="color:var(--ze-yellow);font-weight:600;">${formatCurrency(itemTotal)}</span>
+                    </span>
+                </div>`;
+            });
+            html += `<div style="display:flex;justify-content:space-between;padding-top:0.5rem;margin-top:0.5rem;border-top:2px solid var(--ze-yellow);">
+                <span style="font-weight:700;">Total:</span>
+                <span>
+                    ${total < originalTotal ? `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:0.9rem;margin-right:0.5rem;">${formatCurrency(originalTotal)}</span>` : ''}
+                    <span style="color:var(--ze-yellow);font-weight:700;font-size:1.2rem;">${formatCurrency(total)}</span>
+                </span>
+            </div></div>`;
+            summary.innerHTML = html;
+
+            document.getElementById('checkout-form').reset();
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('troco-group').classList.remove('show');
+            document.getElementById('checkout-modal').classList.add('show');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.remove('show');
+        }
+
+        function closeCheckoutAndContinue() {
+            closeCheckoutModal();
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('view-catalog').style.display = 'block';
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            renderCatalog();
+        }
+
+        function formatPhone(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            if (value.length > 7) {
+                value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+            } else if (value.length > 2) {
+                value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            } else if (value.length > 0) {
+                value = `(${value}`;
+            }
+            input.value = value;
+        }
+
+        function toggleDiscountFields() {
+            const type = document.getElementById('discount-type').value;
+            document.getElementById('discount-leve-pague').classList.toggle('show', type === 'leve-pague');
+            document.getElementById('discount-percent').classList.toggle('show', type === 'percent');
+        }
+
+        function getDiscountData() {
+            const type = document.getElementById('discount-type').value;
+            if (type === 'none') return null;
+            if (type === 'leve-pague') {
+                const buy = parseInt(document.getElementById('discount-qty-buy').value) || 0;
+                const pay = parseInt(document.getElementById('discount-qty-pay').value) || 0;
+                if (buy <= 0 || pay <= 0 || pay >= buy) return null;
+                return { type: 'leve-pague', buy, pay };
+            }
+            if (type === 'percent') {
+                const minQty = parseInt(document.getElementById('discount-min-qty').value) || 0;
+                const percent = parseInt(document.getElementById('discount-percent-value').value) || 0;
+                if (minQty <= 0 || percent <= 0) return null;
+                return { type: 'percent', minQty, percent };
+            }
+            return null;
+        }
+
+        function calculateItemTotal(product, qty) {
+            if (!product.discount) return product.price * qty;
+            if (product.discount.type === 'leve-pague') {
+                const sets = Math.floor(qty / product.discount.buy);
+                const remainder = qty % product.discount.buy;
+                return (sets * product.discount.pay + remainder) * product.price;
+            }
+            if (product.discount.type === 'percent') {
+                const total = product.price * qty;
+                if (qty >= product.discount.minQty) {
+                    return total * (1 - product.discount.percent / 100);
+                }
+                return total;
+            }
+            return product.price * qty;
+        }
+
+        function formatDiscountLabel(product) {
+            if (!product.discount) return '';
+            if (product.discount.type === 'leve-pague') {
+                return `Leve ${product.discount.buy} Pague ${product.discount.pay}`;
+            }
+            if (product.discount.type === 'percent') {
+                return `${product.discount.percent}% OFF a partir de ${product.discount.minQty}un`;
+            }
+            return '';
+        }
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImageBase64 = e.target.result;
+                document.getElementById('image-preview').src = currentImageBase64;
+                document.getElementById('image-preview').classList.add('show');
+                document.getElementById('upload-text').style.display = 'none';
+                document.getElementById('image-upload').classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function formatPrice(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = (parseInt(value || '0') / 100).toFixed(2);
+            value = value.replace('.', ',');
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            input.value = value ? 'R$ ' + value : '';
+        }
+
+        function parsePrice(priceStr) {
+            return parseFloat(priceStr.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            const code = document.getElementById('product-code').value.trim();
+            const name = document.getElementById('product-name').value.trim();
+            const description = document.getElementById('product-description').value.trim();
+            const priceStr = document.getElementById('product-price').value;
+
+            if (!code || !name || !description || !priceStr) {
+                showToast('Preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            if (!currentImageBase64 && !editingId) {
+                showToast('Adicione uma foto do produto.', 'error');
+                return;
+            }
+
+            const price = parsePrice(priceStr);
+            const discount = getDiscountData();
+            if (editingId) {
+                const index = products.findIndex(p => p.id === editingId);
+                if (index !== -1) {
+                    products[index] = { ...products[index], code, name, description, price, discount, image: currentImageBase64 || products[index].image };
+                    showToast('Produto atualizado com sucesso!', 'success');
+                }
+            } else {
+                products.push({ id: Date.now().toString(), code, name, description, price, discount, image: currentImageBase64, createdAt: new Date().toISOString() });
+                showToast('Produto adicionado com sucesso!', 'success');
+            }
+            localStorage.setItem('catalog_products', JSON.stringify(products));
+            resetForm();
+            renderAdminList();
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            editingId = id;
+            document.getElementById('product-id').value = id;
+            document.getElementById('product-code').value = product.code || '';
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-description').value = product.description;
+            document.getElementById('product-price').value = 'R$ ' + product.price.toFixed(2).replace('.', ',');
+            currentImageBase64 = product.image;
+            const img = document.getElementById('image-preview');
+            img.src = product.image; img.classList.add('show');
+            document.getElementById('upload-text').style.display = 'none';
+            document.getElementById('image-upload').classList.add('has-image');
+            document.getElementById('form-title').textContent = 'Editar Bebida';
+            document.getElementById('btn-save').textContent = 'Atualizar';
+            document.getElementById('btn-cancel').style.display = 'block';
+            document.getElementById('btn-delete').style.display = 'block';
+            // Load discount
+            if (product.discount) {
+                document.getElementById('discount-type').value = product.discount.type;
+                toggleDiscountFields();
+                if (product.discount.type === 'leve-pague') {
+                    document.getElementById('discount-qty-buy').value = product.discount.buy;
+                    document.getElementById('discount-qty-pay').value = product.discount.pay;
+                } else if (product.discount.type === 'percent') {
+                    document.getElementById('discount-min-qty').value = product.discount.minQty;
+                    document.getElementById('discount-percent-value').value = product.discount.percent;
+                }
+            } else {
+                document.getElementById('discount-type').value = 'none';
+                toggleDiscountFields();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+            products = products.filter(p => p.id !== id);
+            cart = cart.filter(c => c.id !== id);
+            saveCart();
+            localStorage.setItem('catalog_products', JSON.stringify(products));
+            renderAdminList();
+            updateCartCount();
+            if (editingId === id) resetForm();
+            showToast('Produto excluído.', 'success');
+        }
+
+        function deleteCurrentProduct() { if (editingId) deleteProduct(editingId); }
+
+        function resetForm() {
+            editingId = null; currentImageBase64 = '';
+            document.getElementById('product-form').reset();
+            document.getElementById('image-preview').classList.remove('show');
+            document.getElementById('upload-text').style.display = 'block';
+            document.getElementById('image-upload').classList.remove('has-image');
+            document.getElementById('form-title').textContent = 'Nova Bebida';
+            document.getElementById('btn-save').textContent = 'Salvar';
+            document.getElementById('btn-cancel').style.display = 'none';
+            document.getElementById('btn-delete').style.display = 'none';
+            document.getElementById('discount-type').value = 'none';
+            toggleDiscountFields();
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const empty = document.getElementById('catalog-empty');
+            if (products.length === 0) { grid.style.display = 'none'; empty.style.display = 'block'; return; }
+            grid.style.display = 'grid'; empty.style.display = 'none';
+            grid.innerHTML = products.map(product => {
+                const discountLabel = formatDiscountLabel(product);
+                return `
+                <div class="product-card">
+                    ${product.image ? `<img src="${product.image}" alt="${escapeHtml(product.name)}" class="product-image">` : `<div class="product-image-placeholder">Sem imagem</div>`}
+                    <div class="product-info">
+                        <div class="product-code">COD: ${escapeHtml(product.code || '---')}</div>
+                        <h3 class="product-name">${escapeHtml(product.name)}</h3>
+                        <p class="product-description">${escapeHtml(product.description)}</p>
+                        ${discountLabel ? `<div style="color:var(--ze-yellow);font-size:0.8rem;font-weight:600;margin-bottom:0.5rem;background:rgba(255,215,0,0.1);padding:0.3rem 0.6rem;border-radius:6px;display:inline-block;">${discountLabel}</div>` : ''}
+                        <div class="product-footer">
+                            <span class="product-price">${formatCurrency(product.price)}</span>
+                            <button class="btn-add-cart" onclick="addToCart('${product.id}')">+ Carrinho</button>
+                        </div>
+                    </div>
+                </div>
+            `;}).join('');
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('admin-list');
+            const empty = document.getElementById('admin-empty');
+            if (products.length === 0) { list.style.display = 'none'; empty.style.display = 'block'; return; }
+            list.style.display = 'flex'; empty.style.display = 'none';
+            list.innerHTML = products.map(product => `
+                <div class="product-list-item">
+                    ${product.image ? `<img src="${product.image}" alt="${escapeHtml(product.name)}" class="product-list-img">` : `<div class="product-list-img" style="display:flex;align-items:center;justify-content:center;background:var(--ze-dark);color:var(--text-secondary);font-size:0.75rem">Sem foto</div>`}
+                    <div class="product-list-info">
+                        <div class="product-list-code">COD: ${escapeHtml(product.code || '---')}</div>
+                        <div class="product-list-name">${escapeHtml(product.name)}</div>
+                        <div class="product-list-desc">${escapeHtml(product.description)}</div>
+                    </div>
+                    <div class="product-list-price">${formatCurrency(product.price)}</div>
+                    <div class="product-list-actions">
+                        <button class="btn-icon" onclick="editProduct('${product.id}')" title="Editar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                        <button class="btn-icon delete" onclick="deleteProduct('${product.id}')" title="Excluir"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectPayment(method) {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            document.getElementById('pay-' + method).checked = true;
+            const trocoGroup = document.getElementById('troco-group');
+            if (method === 'dinheiro') { trocoGroup.classList.add('show'); }
+            else { trocoGroup.classList.remove('show'); document.getElementById('customer-troco').value = ''; }
+        }
+
+        function sendOrder(event) {
+            event.preventDefault();
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const street = document.getElementById('customer-street').value.trim();
+            const number = document.getElementById('customer-number').value.trim();
+            const neighborhood = document.getElementById('customer-neighborhood').value.trim();
+            const reference = document.getElementById('customer-reference').value.trim();
+            const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
+            const troco = document.getElementById('customer-troco').value;
+
+            if (!name || !phone || !street || !number || !neighborhood || !paymentMethod) {
+                showToast('Preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            if (cart.length === 0) { showToast('Carrinho vazio!', 'error'); return; }
+
+            const fullAddress = `${street}, ${number} — ${neighborhood}`;
+            const paymentLabels = { pix: 'PIX', credito: 'Cartão de Crédito', debito: 'Cartão de Débito', dinheiro: 'Dinheiro' };
+            let total = 0;
+            let originalTotal = 0;
+            let itemsText = '';
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (!product) return;
+                const itemTotal = calculateItemTotal(product, item.qty);
+                const originalSubtotal = product.price * item.qty;
+                total += itemTotal;
+                originalTotal += originalSubtotal;
+                const discountLabel = formatDiscountLabel(product);
+                itemsText += `• ${product.name} (COD: ${product.code || '---'}) x${item.qty}`;
+                if (discountLabel) itemsText += ` [${discountLabel}]`;
+                itemsText += ` = ${formatCurrency(itemTotal)}`;
+                if (itemTotal < originalSubtotal) itemsText += ` (de ${formatCurrency(originalSubtotal)})`;
+                itemsText += `\n`;
+            });
+
+            let message = `*NOVO PEDIDO - ZÉ BEBIDAS*\n\n`;
+            message += `*ITENS DO PEDIDO:*\n${itemsText}\n`;
+            if (total < originalTotal) {
+                message += `*Subtotal:* ${formatCurrency(originalTotal)}\n`;
+                message += `*Desconto:* ${formatCurrency(originalTotal - total)}\n`;
+            }
+            message += `*Total do Pedido:* ${formatCurrency(total)}\n\n`;
+            message += `*DADOS DO CLIENTE*\n`;
+            message += `*Nome:* ${name}\n`;
+            message += `*Telefone:* ${phone}\n`;
+            message += `*Rua:* ${street}\n`;
+            message += `*Número:* ${number}\n`;
+            message += `*Bairro:* ${neighborhood}\n`;
+            if (reference) message += `*Ponto de Referência:* ${reference}\n`;
+            message += `\n*FORMA DE PAGAMENTO*\n${paymentLabels[paymentMethod]}`;
+            if (paymentMethod === 'dinheiro' && troco) message += `\n*Troco para:* ${troco}`;
+            message += `\n\n*Entrega Grátis!*\nAguardo confirmação do pedido!`;
+
+            window.open(`https://wa.me/5584994726406?text=${encodeURIComponent(message)}`, '_blank');
+            closeCheckoutModal();
+            saveOrderToHistory(name, phone, street, number, neighborhood, reference, paymentLabels[paymentMethod], troco, total, originalTotal, cart.slice());
+            cart = []; saveCart(); updateCartCount();
+            showToast('Pedido enviado pelo WhatsApp!', 'success');
+        }
+
+        function saveOrderToHistory(name, phone, street, number, neighborhood, reference, payment, troco, total, originalTotal, items) {
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            const order = {
+                id: 'PED' + Date.now().toString().slice(-6),
+                date: new Date().toISOString(),
+                customer: name,
+                phone: phone,
+                street: street,
+                number: number,
+                neighborhood: neighborhood,
+                address: `${street}, ${number} — ${neighborhood}`,
+                reference: reference || '',
+                payment: payment,
+                troco: troco || '',
+                total: total,
+                originalTotal: originalTotal,
+                items: items.map(item => {
+                    const product = products.find(p => p.id === item.id);
+                    return {
+                        name: product ? product.name : 'Produto removido',
+                        code: product ? product.code : '',
+                        qty: item.qty,
+                        price: product ? product.price : 0,
+                        total: product ? calculateItemTotal(product, item.qty) : 0
+                    };
+                }),
+                status: 'pendente'
+            };
+            orders.unshift(order);
+            localStorage.setItem('ze_bebidas_orders', JSON.stringify(orders));
+        }
+
+        function renderOrdersList() {
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            const container = document.getElementById('orders-list');
+            const empty = document.getElementById('orders-empty');
+
+            if (orders.length === 0) {
+                container.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'block';
+            empty.style.display = 'none';
+
+            container.innerHTML = orders.map((order, index) => {
+                const date = new Date(order.date);
+                const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const statusClass = order.status === 'entregue' ? 'status-entregue' : order.status === 'cancelado' ? 'status-cancelado' : 'status-pendente';
+                const itemsText = order.items.map(i => `${i.name} x${i.qty}`).join(', ');
+                const hasDiscount = order.total < order.originalTotal;
+
+                return `
+                <div class="order-history-item">
+                    <div class="order-history-header">
+                        <div>
+                            <span class="order-history-id">#${order.id}</span>
+                            <span class="order-history-date" style="margin-left:0.5rem;">${dateStr}</span>
+                        </div>
+                        <span class="order-history-status ${statusClass}">${order.status}</span>
+                    </div>
+                    <div class="order-history-products">${escapeHtml(itemsText)}</div>
+                    <div class="order-history-footer">
+                        <div>
+                            <div class="order-history-customer">${escapeHtml(order.customer)} — ${escapeHtml(order.address)}</div>
+                            <div class="order-history-customer">Pagamento: ${order.payment}${order.troco ? ' — Troco: ' + order.troco : ''}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            ${hasDiscount ? `<div style="text-decoration:line-through;color:var(--text-secondary);font-size:0.8rem;">${formatCurrency(order.originalTotal)}</div>` : ''}
+                            <div class="order-history-total">${formatCurrency(order.total)}</div>
+                            <div class="order-history-actions" style="margin-top:0.5rem;">
+                                <button class="btn-small btn-primary" onclick="changeOrderStatus(${index}, 'entregue')" style="background:var(--success);color:white;">Entregue</button>
+                                <button class="btn-small btn-secondary" onclick="changeOrderStatus(${index}, 'cancelado')" style="background:var(--danger);color:white;border:none;">Cancelar</button>
+                                <button class="btn-small btn-secondary" onclick="deleteOrder(${index})" style="border:1px solid var(--border);">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function changeOrderStatus(index, status) {
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            if (orders[index]) {
+                orders[index].status = status;
+                localStorage.setItem('ze_bebidas_orders', JSON.stringify(orders));
+                renderOrdersList();
+                showToast(`Pedido marcado como ${status}!`, 'success');
+            }
+        }
+
+        function deleteOrder(index) {
+            if (!confirm('Tem certeza que deseja excluir este pedido do histórico?')) return;
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            orders.splice(index, 1);
+            localStorage.setItem('ze_bebidas_orders', JSON.stringify(orders));
+            renderOrdersList();
+            renderCustomersList();
+            showToast('Pedido removido do histórico.', 'success');
+        }
+
+        function renderCustomersList() {
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            const container = document.getElementById('customers-list');
+            const empty = document.getElementById('customers-empty');
+
+            if (orders.length === 0) {
+                container.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            // Agrupa pedidos por cliente
+            const customers = {};
+            orders.forEach(order => {
+                const key = order.customer.toLowerCase().trim();
+                if (!customers[key]) {
+                    customers[key] = {
+                        name: order.customer,
+                        phone: order.phone || '',
+                        street: order.street || '',
+                        number: order.number || '',
+                        neighborhood: order.neighborhood || '',
+                        address: order.address || '',
+                        reference: order.reference,
+                        orders: [],
+                        totalSpent: 0,
+                        totalOrders: 0
+                    };
+                }
+                customers[key].orders.push(order);
+                customers[key].totalSpent += order.total;
+                customers[key].totalOrders += 1;
+            });
+
+            const customerList = Object.values(customers).sort((a, b) => b.totalSpent - a.totalSpent);
+
+            container.style.display = 'block';
+            empty.style.display = 'none';
+
+            container.innerHTML = customerList.map((customer, idx) => {
+                const lastOrder = customer.orders[0];
+                const lastOrderDate = new Date(lastOrder.date);
+                const dateStr = lastOrderDate.toLocaleDateString('pt-BR');
+                const avgOrder = customer.totalSpent / customer.totalOrders;
+                const fullAddress = customer.street ? `${customer.street}, ${customer.number} — ${customer.neighborhood}` : customer.address;
+
+                return `
+                <div class="customer-card">
+                    <div class="customer-header">
+                        <div class="customer-name">${escapeHtml(customer.name)}</div>
+                        <div class="order-history-actions">
+                            <button class="btn-small btn-primary" onclick="copyCustomerInfo('${escapeHtml(customer.name)}', '${escapeHtml(fullAddress)}', '${escapeHtml(customer.phone || '')}', '${escapeHtml(customer.reference || '')}')" style="background:var(--ze-yellow);color:var(--ze-black);">Copiar Dados</button>
+                        </div>
+                    </div>
+                    <div class="customer-address">
+                        <strong>Telefone:</strong> ${escapeHtml(customer.phone || 'Não informado')}<br>
+                        <strong>Rua:</strong> ${escapeHtml(customer.street || '')}<br>
+                        <strong>Número:</strong> ${escapeHtml(customer.number || '')}<br>
+                        <strong>Bairro:</strong> ${escapeHtml(customer.neighborhood || '')}
+                        ${customer.reference ? '<br><strong>Ref:</strong> ' + escapeHtml(customer.reference) : ''}
+                    </div>
+                    <div class="customer-stats">
+                        <div class="customer-stat">
+                            <div class="customer-stat-value">${customer.totalOrders}</div>
+                            <div class="customer-stat-label">Pedidos</div>
+                        </div>
+                        <div class="customer-stat">
+                            <div class="customer-stat-value">${formatCurrency(customer.totalSpent)}</div>
+                            <div class="customer-stat-label">Total Gasto</div>
+                        </div>
+                        <div class="customer-stat">
+                            <div class="customer-stat-value">${formatCurrency(avgOrder)}</div>
+                            <div class="customer-stat-label">Ticket Médio</div>
+                        </div>
+                    </div>
+                    <div class="customer-last-order">Último pedido: ${dateStr} — ${formatCurrency(lastOrder.total)}</div>
+                    <div class="customer-orders-list">
+                        ${customer.orders.slice(0, 3).map(o => `
+                            <div class="customer-order-mini">
+                                <span>#${o.id} — ${o.items.map(i => i.name + ' x' + i.qty).join(', ')}</span>
+                                <span style="color:var(--ze-yellow);font-weight:600;">${formatCurrency(o.total)}</span>
+                            </div>
+                        `).join('')}
+                        ${customer.orders.length > 3 ? `<div style="text-align:center;padding:0.3rem;font-size:0.75rem;color:var(--text-secondary);">+${customer.orders.length - 3} pedidos anteriores</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function copyCustomerInfo(name, address, phone, reference) {
+            let text = `Nome: ${name}`;
+            if (phone) text += `\nTelefone: ${phone}`;
+            text += `\nEndereço: ${address}`;
+            if (reference) text += `\nReferência: ${reference}`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Dados do cliente copiados!', 'success');
+            }).catch(() => {
+                showToast('Erro ao copiar dados.', 'error');
+            });
+        }
+
+        function exportToCSV(filename, headers, rows) {
+            const csvContent = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast('Arquivo exportado com sucesso!', 'success');
+        }
+
+        function exportOrdersToExcel() {
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            if (orders.length === 0) { showToast('Nenhum pedido para exportar.', 'error'); return; }
+            const headers = ['Pedido', 'Data', 'Cliente', 'Telefone', 'Rua', 'Número', 'Bairro', 'Referência', 'Pagamento', 'Troco', 'Itens', 'Subtotal', 'Desconto', 'Total', 'Status'];
+            const rows = orders.map(o => {
+                const date = new Date(o.date).toLocaleString('pt-BR');
+                const items = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
+                const discount = o.originalTotal > o.total ? formatCurrency(o.originalTotal - o.total) : 'R$ 0,00';
+                return [o.id, date, o.customer, o.phone || '', o.street || '', o.number || '', o.neighborhood || '', o.reference || '', o.payment, o.troco || '', items, formatCurrency(o.originalTotal || o.total), discount, formatCurrency(o.total), o.status];
+            });
+            exportToCSV('pedidos_ze_bebidas.csv', headers, rows);
+        }
+
+        function exportCustomersToExcel() {
+            const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
+            if (orders.length === 0) { showToast('Nenhum cliente para exportar.', 'error'); return; }
+            const customers = {};
+            orders.forEach(order => {
+                const key = order.customer.toLowerCase().trim();
+                if (!customers[key]) {
+                    customers[key] = { name: order.customer, phone: order.phone || '', street: order.street || '', number: order.number || '', neighborhood: order.neighborhood || '', reference: order.reference || '', totalSpent: 0, totalOrders: 0, lastOrder: order.date };
+                }
+                customers[key].totalSpent += order.total;
+                customers[key].totalOrders += 1;
+                if (new Date(order.date) > new Date(customers[key].lastOrder)) customers[key].lastOrder = order.date;
+            });
+            const headers = ['Cliente', 'Telefone', 'Rua', 'Número', 'Bairro', 'Referência', 'Total de Pedidos', 'Total Gasto', 'Ticket Médio', 'Último Pedido'];
+            const rows = Object.values(customers).map(c => {
+                const lastDate = new Date(c.lastOrder).toLocaleDateString('pt-BR');
+                return [c.name, c.phone, c.street, c.number, c.neighborhood, c.reference, c.totalOrders, formatCurrency(c.totalSpent), formatCurrency(c.totalSpent / c.totalOrders), lastDate];
+            });
+            exportToCSV('clientes_ze_bebidas.csv', headers, rows);
+        }
+
+        function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function formatCurrency(value) { return 'R$ ' + value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${type === 'success' ? '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg>${escapeHtml(message)}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.getElementById('cart-modal').addEventListener('click', function(e) { if (e.target === this) closeCartModal(); });
+        document.getElementById('checkout-modal').addEventListener('click', function(e) { if (e.target === this) closeCheckoutModal(); });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW registrado:', reg.scope))
+                .catch(err => console.log('SW erro:', err));
+        }
+
+        // IndexedDB Database
+        const DB_NAME = 'ZeBebidasDB';
+        const DB_VERSION = 1;
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => { db = request.result; resolve(db); };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains('products')) {
+                        const productStore = database.createObjectStore('products', { keyPath: 'id' });
+                        productStore.createIndex('code', 'code', { unique: false });
+                    }
+                    if (!database.objectStoreNames.contains('orders')) {
+                        const orderStore = database.createObjectStore('orders', { keyPath: 'id' });
+                        orderStore.createIndex('customer', 'customer', { unique: false });
+                        orderStore.createIndex('date', 'date', { unique: false });
+                        orderStore.createIndex('status', 'status', { unique: false });
+                    }
+                    if (!database.objectStoreNames.contains('settings')) {
+                        database.createObjectStore('settings', { keyPath: 'key' });
+                    }
+                };
+            });
+        }
+
+        async function dbPut(store, data) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(store, 'readwrite');
+                const st = tx.objectStore(store);
+                const req = st.put(data);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function dbGetAll(store) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(store, 'readonly');
+                const st = tx.objectStore(store);
+                const req = st.getAll();
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function dbDelete(store, id) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(store, 'readwrite');
+                const st = tx.objectStore(store);
+                const req = st.delete(id);
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function dbClear(store) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(store, 'readwrite');
+                const st = tx.objectStore(store);
+                const req = st.clear();
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        // Migrate from localStorage to IndexedDB
+        async function migrateFromLocalStorage() {
+            const oldProducts = localStorage.getItem('catalog_products');
+            const oldOrders = localStorage.getItem('ze_bebidas_orders');
+            const migrated = localStorage.getItem('ze_bebidas_migrated');
+
+            if (migrated === 'true') return;
+
+            if (oldProducts) {
+                const prods = JSON.parse(oldProducts);
+                for (const p of prods) await dbPut('products', p);
+            }
+            if (oldOrders) {
+                const ords = JSON.parse(oldOrders);
+                for (const o of ords) await dbPut('orders', o);
+            }
+            localStorage.setItem('ze_bebidas_migrated', 'true');
+            console.log('Dados migrados do localStorage para IndexedDB');
+        }
+
+        // Override data functions to use IndexedDB
+        async function loadProducts() {
+            products = await dbGetAll('products');
+            renderCatalog();
+            renderAdminList();
+        }
+
+        async function saveProductToDB(product) {
+            await dbPut('products', product);
+            await loadProducts();
+        }
+
+        async function deleteProductFromDB(id) {
+            await dbDelete('products', id);
+            await loadProducts();
+        }
+
+        async function saveOrderToDB(order) {
+            await dbPut('orders', order);
+        }
+
+        async function loadOrders() {
+            return await dbGetAll('orders');
+        }
+
+        async function updateOrderStatusDB(id, status) {
+            const orders = await dbGetAll('orders');
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = status;
+                await dbPut('orders', order);
+            }
+        }
+
+        async function deleteOrderFromDB(id) {
+            await dbDelete('orders', id);
+        }
+
+        // Initialize IndexedDB
+        openDB().then(() => {
+            migrateFromLocalStorage().then(() => {
+                loadProducts();
+            });
+        }).catch(err => {
+            console.error('Erro ao abrir IndexedDB:', err);
+            // Fallback to localStorage
+            products = JSON.parse(localStorage.getItem('catalog_products') || '[]');
+            renderCatalog();
+            renderAdminList();
+        });
+    </script>
+</body>
+</html>
