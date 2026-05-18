@@ -47,6 +47,7 @@
         .hero-banner h1 { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; font-weight: 400; color: var(--ze-yellow); letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7); margin-bottom: 0.5rem; }
         .hero-banner .subtitle { font-size: 1.3rem; color: var(--text-primary); font-weight: 300; text-shadow: 1px 1px 3px rgba(0,0,0,0.7); }
         .free-delivery-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ze-yellow); color: var(--ze-black); padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 1rem; margin-top: 1rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
+        .free-delivery-badge svg { width: 22px; height: 22px; flex-shrink: 0; }
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
         .product-card { background: var(--ze-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; backdrop-filter: blur(10px); }
         .product-card:hover { transform: translateY(-8px); border-color: var(--ze-yellow); box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15); }
@@ -202,6 +203,13 @@
         .customer-orders-list { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
         .customer-order-mini { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; font-size: 0.85rem; border-bottom: 1px solid rgba(255,215,0,0.1); }
         .customer-order-mini:last-child { border-bottom: none; }
+        .settings-panel { background: var(--ze-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 680px; backdrop-filter: blur(10px); }
+        .settings-panel h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; margin-bottom: 1rem; color: var(--ze-yellow); letter-spacing: 1px; }
+        .delivery-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; margin-bottom: 1.2rem; }
+        .delivery-option { padding: 1rem; background: var(--ze-input); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .delivery-option.selected { border-color: var(--ze-yellow); background: rgba(255,215,0,0.1); }
+        .delivery-option input { margin-right: 0.4rem; accent-color: var(--ze-yellow); }
+        .delivery-option label { cursor: pointer; color: var(--text-primary); font-weight: 700; }
     </style>
 </head>
 <body>
@@ -250,6 +258,7 @@
                 <button class="admin-tab active" onclick="showAdminTab('products')">Produtos</button>
                 <button class="admin-tab" onclick="showAdminTab('orders')">Pedidos</button>
                 <button class="admin-tab" onclick="showAdminTab('customers')">Clientes</button>
+                <button class="admin-tab" onclick="showAdminTab('delivery')">Entrega</button>
             </div>
             <div id="admin-section-products" class="admin-section active">
                 <div class="admin-grid">
@@ -355,6 +364,30 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>
                     <h3>Nenhum cliente ainda</h3>
                     <p>Os clientes que fizerem pedidos aparecerão aqui automaticamente.</p>
+                </div>
+            </div>
+            <div id="admin-section-delivery" class="admin-section">
+                <div class="settings-panel">
+                    <h3>Configurar Entrega</h3>
+                    <form onsubmit="saveDeliverySettings(event)">
+                        <div class="delivery-options">
+                            <div class="delivery-option" id="delivery-option-free" onclick="selectDeliveryMode('free')">
+                                <input type="radio" name="delivery-mode" id="delivery-free" value="free">
+                                <label for="delivery-free">Entrega gratis</label>
+                            </div>
+                            <div class="delivery-option" id="delivery-option-paid" onclick="selectDeliveryMode('paid')">
+                                <input type="radio" name="delivery-mode" id="delivery-paid" value="paid">
+                                <label for="delivery-paid">Cobrar entrega</label>
+                            </div>
+                        </div>
+                        <div class="form-group hidden-field" id="delivery-fee-group">
+                            <label>Valor da entrega (R$)</label>
+                            <input type="text" id="delivery-fee" placeholder="5,00" oninput="formatPrice(this)">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Salvar Entrega</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -482,10 +515,13 @@
         let cart = JSON.parse(localStorage.getItem('ze_bebidas_cart') || '[]');
         let currentImageBase64 = '';
         let editingId = null;
+        let deliverySettings = getStoredDeliverySettings();
 
         document.addEventListener('DOMContentLoaded', () => {
             renderCatalog();
             updateCartCount();
+            renderDeliverySettings();
+            updateDeliveryBadge();
         });
 
         function showView(view) {
@@ -504,6 +540,61 @@
             document.getElementById('admin-section-' + tab).classList.add('active');
             if (tab === 'orders') renderOrdersList();
             if (tab === 'customers') renderCustomersList();
+            if (tab === 'delivery') renderDeliverySettings();
+        }
+
+        function getStoredDeliverySettings() {
+            const fallback = { mode: 'free', fee: 0 };
+            try {
+                return { ...fallback, ...JSON.parse(localStorage.getItem('ze_bebidas_delivery') || '{}') };
+            } catch {
+                return fallback;
+            }
+        }
+
+        function getDeliveryFee() {
+            return deliverySettings.mode === 'paid' ? Number(deliverySettings.fee || 0) : 0;
+        }
+
+        function getDeliveryLabel() {
+            const fee = getDeliveryFee();
+            return fee > 0 ? `Entrega: ${formatCurrency(fee)}` : 'Entrega gratis';
+        }
+
+        function selectDeliveryMode(mode) {
+            document.getElementById('delivery-free').checked = mode === 'free';
+            document.getElementById('delivery-paid').checked = mode === 'paid';
+            document.getElementById('delivery-option-free').classList.toggle('selected', mode === 'free');
+            document.getElementById('delivery-option-paid').classList.toggle('selected', mode === 'paid');
+            document.getElementById('delivery-fee-group').classList.toggle('show', mode === 'paid');
+        }
+
+        function renderDeliverySettings() {
+            const feeInput = document.getElementById('delivery-fee');
+            if (!feeInput) return;
+            selectDeliveryMode(deliverySettings.mode || 'free');
+            feeInput.value = deliverySettings.fee ? formatCurrency(deliverySettings.fee) : '';
+        }
+
+        function saveDeliverySettings(event) {
+            event.preventDefault();
+            const mode = document.querySelector('input[name="delivery-mode"]:checked')?.value || 'free';
+            const fee = mode === 'paid' ? parsePrice(document.getElementById('delivery-fee').value) : 0;
+            if (mode === 'paid' && fee <= 0) {
+                showToast('Informe o valor da entrega.', 'error');
+                return;
+            }
+            deliverySettings = { mode, fee };
+            localStorage.setItem('ze_bebidas_delivery', JSON.stringify(deliverySettings));
+            updateDeliveryBadge();
+            renderCart();
+            showToast('Entrega atualizada com sucesso!', 'success');
+        }
+
+        function updateDeliveryBadge() {
+            const badge = document.querySelector('.free-delivery-badge');
+            if (!badge) return;
+            badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/><path d="M13 5V3"/><path d="M13 11V9"/></svg>${getDeliveryLabel()}`;
         }
 
         // Admin Access
@@ -635,11 +726,13 @@
                 `;
             }).join('');
 
+            const deliveryFee = getDeliveryFee();
+            const finalTotal = total + deliveryFee;
             const totalEl = document.getElementById('cart-total-price');
             if (total < originalTotal) {
-                totalEl.innerHTML = `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:1rem;margin-right:0.5rem;">${formatCurrency(originalTotal)}</span>${formatCurrency(total)}`;
+                totalEl.innerHTML = `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:1rem;margin-right:0.5rem;">${formatCurrency(originalTotal)}</span>${formatCurrency(finalTotal)}<div style="color:var(--text-secondary);font-size:0.78rem;font-weight:500;margin-top:0.2rem;">Produtos: ${formatCurrency(total)} | ${getDeliveryLabel()}</div>`;
             } else {
-                totalEl.textContent = formatCurrency(total);
+                totalEl.innerHTML = `${formatCurrency(finalTotal)}<div style="color:var(--text-secondary);font-size:0.78rem;font-weight:500;margin-top:0.2rem;">Produtos: ${formatCurrency(total)} | ${getDeliveryLabel()}</div>`;
             }
         }
 
@@ -667,11 +760,17 @@
                     </span>
                 </div>`;
             });
+            const deliveryFee = getDeliveryFee();
+            const finalTotal = total + deliveryFee;
+            html += `<div style="display:flex;justify-content:space-between;padding-top:0.5rem;margin-top:0.5rem;">
+                <span>Entrega:</span>
+                <span style="color:var(--ze-yellow);font-weight:600;">${deliveryFee > 0 ? formatCurrency(deliveryFee) : 'Gratis'}</span>
+            </div>`;
             html += `<div style="display:flex;justify-content:space-between;padding-top:0.5rem;margin-top:0.5rem;border-top:2px solid var(--ze-yellow);">
                 <span style="font-weight:700;">Total:</span>
                 <span>
                     ${total < originalTotal ? `<span style="text-decoration:line-through;color:var(--text-secondary);font-size:0.9rem;margin-right:0.5rem;">${formatCurrency(originalTotal)}</span>` : ''}
-                    <span style="color:var(--ze-yellow);font-weight:700;font-size:1.2rem;">${formatCurrency(total)}</span>
+                    <span style="color:var(--ze-yellow);font-weight:700;font-size:1.2rem;">${formatCurrency(finalTotal)}</span>
                 </span>
             </div></div>`;
             summary.innerHTML = html;
@@ -973,13 +1072,18 @@
                 itemsText += `\n`;
             });
 
+            const deliveryFee = getDeliveryFee();
+            const finalTotal = total + deliveryFee;
+
             let message = `*NOVO PEDIDO - ZÉ BEBIDAS*\n\n`;
             message += `*ITENS DO PEDIDO:*\n${itemsText}\n`;
             if (total < originalTotal) {
                 message += `*Subtotal:* ${formatCurrency(originalTotal)}\n`;
                 message += `*Desconto:* ${formatCurrency(originalTotal - total)}\n`;
             }
-            message += `*Total do Pedido:* ${formatCurrency(total)}\n\n`;
+            message += `*Produtos:* ${formatCurrency(total)}\n`;
+            message += `*Entrega:* ${deliveryFee > 0 ? formatCurrency(deliveryFee) : 'Gratis'}\n`;
+            message += `*Total do Pedido:* ${formatCurrency(finalTotal)}\n\n`;
             message += `*DADOS DO CLIENTE*\n`;
             message += `*Nome:* ${name}\n`;
             message += `*Telefone:* ${phone}\n`;
@@ -989,16 +1093,16 @@
             if (reference) message += `*Ponto de Referência:* ${reference}\n`;
             message += `\n*FORMA DE PAGAMENTO*\n${paymentLabels[paymentMethod]}`;
             if (paymentMethod === 'dinheiro' && troco) message += `\n*Troco para:* ${troco}`;
-            message += `\n\n*Entrega Grátis!*\nAguardo confirmação do pedido!`;
+            message += `\n\n*${deliveryFee > 0 ? 'Entrega com taxa' : 'Entrega gratis'}*\nAguardo confirmação do pedido!`;
 
             window.open(`https://wa.me/5584994726406?text=${encodeURIComponent(message)}`, '_blank');
             closeCheckoutModal();
-            saveOrderToHistory(name, phone, street, number, neighborhood, reference, paymentLabels[paymentMethod], troco, total, originalTotal, cart.slice());
+            saveOrderToHistory(name, phone, street, number, neighborhood, reference, paymentLabels[paymentMethod], troco, finalTotal, originalTotal, cart.slice(), deliveryFee, total);
             cart = []; saveCart(); updateCartCount();
             showToast('Pedido enviado pelo WhatsApp!', 'success');
         }
 
-        function saveOrderToHistory(name, phone, street, number, neighborhood, reference, payment, troco, total, originalTotal, items) {
+        function saveOrderToHistory(name, phone, street, number, neighborhood, reference, payment, troco, total, originalTotal, items, deliveryFee = 0, productsTotal = total) {
             const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
             const order = {
                 id: 'PED' + Date.now().toString().slice(-6),
@@ -1014,6 +1118,8 @@
                 troco: troco || '',
                 total: total,
                 originalTotal: originalTotal,
+                productsTotal: productsTotal,
+                deliveryFee: deliveryFee,
                 items: items.map(item => {
                     const product = products.find(p => p.id === item.id);
                     return {
@@ -1049,7 +1155,8 @@
                 const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const statusClass = order.status === 'entregue' ? 'status-entregue' : order.status === 'cancelado' ? 'status-cancelado' : 'status-pendente';
                 const itemsText = order.items.map(i => `${i.name} x${i.qty}`).join(', ');
-                const hasDiscount = order.total < order.originalTotal;
+                const productsTotal = order.productsTotal || Math.max(order.total - (order.deliveryFee || 0), 0);
+                const hasDiscount = productsTotal < order.originalTotal;
 
                 return `
                 <div class="order-history-item">
@@ -1065,6 +1172,7 @@
                         <div>
                             <div class="order-history-customer">${escapeHtml(order.customer)} — ${escapeHtml(order.address)}</div>
                             <div class="order-history-customer">Pagamento: ${order.payment}${order.troco ? ' — Troco: ' + order.troco : ''}</div>
+                            <div class="order-history-customer">Entrega: ${order.deliveryFee > 0 ? formatCurrency(order.deliveryFee) : 'Gratis'}</div>
                         </div>
                         <div style="text-align:right;">
                             ${hasDiscount ? `<div style="text-decoration:line-through;color:var(--text-secondary);font-size:0.8rem;">${formatCurrency(order.originalTotal)}</div>` : ''}
@@ -1215,12 +1323,13 @@
         function exportOrdersToExcel() {
             const orders = JSON.parse(localStorage.getItem('ze_bebidas_orders') || '[]');
             if (orders.length === 0) { showToast('Nenhum pedido para exportar.', 'error'); return; }
-            const headers = ['Pedido', 'Data', 'Cliente', 'Telefone', 'Rua', 'Número', 'Bairro', 'Referência', 'Pagamento', 'Troco', 'Itens', 'Subtotal', 'Desconto', 'Total', 'Status'];
+            const headers = ['Pedido', 'Data', 'Cliente', 'Telefone', 'Rua', 'Número', 'Bairro', 'Referência', 'Pagamento', 'Troco', 'Itens', 'Subtotal', 'Desconto', 'Entrega', 'Total', 'Status'];
             const rows = orders.map(o => {
                 const date = new Date(o.date).toLocaleString('pt-BR');
                 const items = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
-                const discount = o.originalTotal > o.total ? formatCurrency(o.originalTotal - o.total) : 'R$ 0,00';
-                return [o.id, date, o.customer, o.phone || '', o.street || '', o.number || '', o.neighborhood || '', o.reference || '', o.payment, o.troco || '', items, formatCurrency(o.originalTotal || o.total), discount, formatCurrency(o.total), o.status];
+                const productsTotal = o.productsTotal || Math.max(o.total - (o.deliveryFee || 0), 0);
+                const discount = o.originalTotal > productsTotal ? formatCurrency(o.originalTotal - productsTotal) : 'R$ 0,00';
+                return [o.id, date, o.customer, o.phone || '', o.street || '', o.number || '', o.neighborhood || '', o.reference || '', o.payment, o.troco || '', items, formatCurrency(o.originalTotal || o.productsTotal || o.total), discount, formatCurrency(o.deliveryFee || 0), formatCurrency(o.total), o.status];
             });
             exportToCSV('pedidos_ze_bebidas.csv', headers, rows);
         }
